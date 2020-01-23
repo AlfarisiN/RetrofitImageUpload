@@ -25,6 +25,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 public class EditProfile extends AppCompatActivity {
 
@@ -53,6 +55,8 @@ public class EditProfile extends AppCompatActivity {
     private String currentPhotoPath1 = null;
     GetClientData service = RetrofitClient.getRetrofit().create(GetClientData.class);
     private String filename;
+    private List<String> listOfImagesPath;
+    private GridView grid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +69,7 @@ public class EditProfile extends AppCompatActivity {
         edtMail = (EditText) findViewById(R.id.edtMail);
         edtNama = (EditText) findViewById(R.id.edtNama);
         imageName = (TextView) findViewById(R.id.imageName);
+        grid = (GridView) findViewById(R.id.grid);
 
         pickpic.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,23 +93,6 @@ public class EditProfile extends AppCompatActivity {
                 uploadimagemediumtutor(correctBitmap, correctBitmap1);
             }
         });
-    }
-
-    private void editPicProfile(){
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent,"open gallery"),IMG_REQUEST);
-    }
-
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
-        String imageFileName = "JPEG_"+timeStamp+"_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(imageFileName,".jpg",storageDir);
-        currentPhotoPath = image.getAbsolutePath();
-
-        return image;
     }
     //TEST TUTOR MEDIUM
     private File createTempFile(Bitmap bitmap) {
@@ -131,13 +119,6 @@ public class EditProfile extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        //TEST TUTOR MEDIUM
-//        if (requestCode == IMG_CAMERA && resultCode == RESULT_OK) {
-//            bitmap = (Bitmap) data.getExtras().get("data");
-//            pickpic.setImageBitmap(bitmap);
-//            //panggil method uploadImage
-////            uploadImage(mphoto);
-//        }
         if (requestCode == IMG_CAMERA && resultCode == RESULT_OK){
             if(currentPhotoPath != null){
                 File file = new File(currentPhotoPath);
@@ -187,69 +168,6 @@ public class EditProfile extends AppCompatActivity {
                 }
             }
         }
-
-        //TEST TUTOR VIA ONLY GALERY
-//        if (resultCode == RESULT_OK)
-//        {
-//            if(requestCode == IMG_REQUEST)
-//            {
-//                Uri dataimage = data.getData();
-//                String[] imageprojection = {MediaStore.Images.Media.DATA};
-//                Cursor cursor = getContentResolver().query(dataimage,imageprojection,null,null,null);
-//
-//                if (cursor != null)
-//                {
-//                    for (int i = 0; i<cursor.getCount(); i++){
-//                        cursor.moveToFirst();
-//                        int indexImage = cursor.getColumnIndex(imageprojection[i]);
-//                        System.out.println(indexImage);
-//                        System.out.println(cursor.getCount());
-//                        part_image = cursor.getString(indexImage);
-//                    }
-//
-////                    File image = new File(part_image);
-////                    pickpic.setImageBitmap(BitmapFactory.decodeFile(image.getAbsolutePath()));
-//
-//                    if(part_image != null)
-//                    {
-//                        System.out.println("masuk sini?");
-//                        File image = new File(part_image);
-//                        pickpic.setImageBitmap(BitmapFactory.decodeFile(image.getAbsolutePath()));
-//                    }
-//                    System.out.println("langsung kesini?");
-//                }
-//            }
-//        }
-
-        //TEST AWAL
-//        if (requestCode == IMG_REQUEST && resultCode == RESULT_OK && data != null){
-//            Uri dataimage = data.getData();
-//            String[] imageprojection = {MediaStore.Images.Media.DATA};
-//            Cursor cursor = getContentResolver().query(dataimage, imageprojection, null, null, null);
-//            if(cursor != null){
-//                cursor.moveToFirst();
-//                int index = cursor.getColumnIndex(imageprojection[0]);
-//                part_image = cursor.getString(index);
-//                if(part_image != null){
-//                    File image = new File(part_image);
-//                    pickpic.setImageBitmap(BitmapFactory.decodeFile(image.getAbsolutePath()));
-//                }
-//            }
-////            Uri path = data.getData();
-////            try {
-////                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), path);
-////                pickpic.setImageBitmap(bitmap);
-////            } catch (IOException e) {
-////                e.printStackTrace();
-////            }
-//        }
-//        if (requestCode == IMG_CAMERA && resultCode == RESULT_OK ) {
-//           bitmap = (Bitmap) data.getExtras().get("data");
-//            pickpic.setImageBitmap(bitmap);
-////            Bundle extras = data.getExtras();
-////            bitmap = (Bitmap) extras.get("data");
-////            pickpic.setImageBitmap(bitmap);
-//        }
 
     }
     private void startCamera(View view){

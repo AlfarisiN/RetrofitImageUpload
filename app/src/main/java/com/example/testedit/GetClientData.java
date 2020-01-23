@@ -24,4 +24,8 @@ public interface GetClientData {
     Call<Response> postEditProfile(@Part MultipartBody.Part image,
                                    @Part MultipartBody.Part imagee,
                                    @PartMap Map<String, RequestBody> body);
+
+    @Multipart
+    @POST("update")
+    Call<Response> postMultiImage(@Part List<MultipartBody.Part> image);
 }
