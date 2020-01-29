@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Test edit</string>
     <string name="internal_storage">Internal Storage</string>
+    <string name="chooser_file">Choose File</string>
 
 </resources>

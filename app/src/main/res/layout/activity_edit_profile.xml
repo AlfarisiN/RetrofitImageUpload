@@ -49,4 +49,10 @@
         android:layout_height="wrap_content"
         android:textAllCaps="false"
         android:text="camera"/>
+    <Button
+        android:id="@+id/btGallery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="gallery"/>
 </LinearLayout>
