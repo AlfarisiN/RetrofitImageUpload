@@ -1,10 +1,12 @@
 package com.example.testedit.MultipleImage;
 
+import android.app.Activity;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.testedit.R;
 
@@ -14,9 +16,11 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import static java.security.AccessController.getContext;
+
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
 
-    private List items;
+    private List<Uri> items;
 
     public ImageAdapter(ArrayList<Uri> arrImages) {
         this.items = arrImages;
@@ -30,8 +34,15 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
         viewHolder.image.setImageURI(Uri.parse(String.valueOf(items.get(i))));
+        items.get(i);
+        viewHolder.iconremove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removeItem(viewHolder.getAdapterPosition());
+            }
+        });
     }
 
     @Override
@@ -41,11 +52,18 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public ImageView image;
+        public ImageView image, iconremove;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.image);
+            iconremove = itemView.findViewById(R.id.iconRemove);
         }
     }
+    public void removeItem(int position){
+        items.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeRemoved(position, items.size());
+    }
+
 }

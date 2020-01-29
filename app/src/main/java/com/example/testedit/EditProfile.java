@@ -302,14 +302,4 @@ public class EditProfile extends AppCompatActivity {
         return RequestBody.create(
                 okhttp3.MultipartBody.FORM, descriptionString);
     }
-    public void takeImageFromCamera() {
-        Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(cameraIntent, IMG_CAMERA);
-    }
-    private String imagetosting(){
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG,100,byteArrayOutputStream);
-        byte[] imgbyte = byteArrayOutputStream.toByteArray();
-        return Base64.encodeToString(imgbyte, Base64.DEFAULT);
-    }
 }
