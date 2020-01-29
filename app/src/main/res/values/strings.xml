@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Test edit</string>
+    <string name="internal_storage">Internal Storage</string>
+
 </resources>

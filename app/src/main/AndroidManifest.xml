@@ -21,10 +21,10 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".Main2Activity"></activity>
         <activity android:name=".TestCamera" />
         <activity android:name=".EditProfile" />
-        <activity android:name=".Main2Activity">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

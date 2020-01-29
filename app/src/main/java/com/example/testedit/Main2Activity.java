@@ -118,7 +118,7 @@ public class Main2Activity extends Activity implements OnClickListener {
         for (int i = 0; i<image.size(); i++){
 //            parts.add(i, image.get(i))
         }
-//        Call<Response> call = service.postMultiImage(image)
+//        Call<Responsee> call = service.postMultiImage(image)
     }
 
     private List<String> RetriveCapturedImagePath() {

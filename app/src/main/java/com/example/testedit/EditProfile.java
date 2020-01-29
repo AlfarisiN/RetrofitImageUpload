@@ -4,14 +4,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -25,26 +27,28 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.testedit.MultipleImage.FileUtils;
+import com.example.testedit.MultipleImage.ImageAdapter;
+import com.example.testedit.MultipleImage.ItemOffsetDecoration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class EditProfile extends AppCompatActivity {
 
-    private Button btSubmit;
-    private ImageView pickpic, show;
+    private Button btSubmit, btCamera;
     private EditText edtNama, edtMail;
     private TextView imageName;
     private static final int IMG_REQUEST = 777;
@@ -56,7 +60,8 @@ public class EditProfile extends AppCompatActivity {
     GetClientData service = RetrofitClient.getRetrofit().create(GetClientData.class);
     private String filename;
     private List<String> listOfImagesPath;
-    private GridView grid;
+    private ArrayList<Uri> arrImages = new ArrayList();
+    private RecyclerView rv_Images;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,35 +69,60 @@ public class EditProfile extends AppCompatActivity {
         setContentView(R.layout.activity_edit_profile);
 
         btSubmit = (Button) findViewById(R.id.btSubmit);
-        pickpic = (ImageView) findViewById(R.id.pickpic);
-        show = (ImageView) findViewById(R.id.show);
+        btCamera = (Button) findViewById(R.id.btCamera);
         edtMail = (EditText) findViewById(R.id.edtMail);
         edtNama = (EditText) findViewById(R.id.edtNama);
         imageName = (TextView) findViewById(R.id.imageName);
-        grid = (GridView) findViewById(R.id.grid);
-
-        pickpic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startCamera(v);
-//                takeImageFromCamera();
-//                editPicProfile();
-            }
-        });
-        show.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startCamera1(v);
-            }
-        });
-
+        rv_Images = (RecyclerView) findViewById(R.id.rvImage);
         btSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                uploadimage();
-                uploadimagemediumtutor(correctBitmap, correctBitmap1);
+//                uploadimagemediumtutor(correctBitmap, correctBitmap1);
+                uploadmultiple();
             }
         });
+        btCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startCamera(v);
+            }
+        });
+    }
+    private void uploadmultiple(){
+        List<MultipartBody.Part> parts = new ArrayList<>();
+        if(arrImages != null){
+            for (int i = 0; i<arrImages.size(); i++) {
+                parts.add(prepareFilePart("image[]", arrImages.get(i)));
+            }
+        }
+        System.out.println("size parts " + parts.size());
+
+        RequestBody name = createPartFromString("jhon");
+        RequestBody mail = createPartFromString("testmail@mail.com");
+        Call<Response> call = service.postMultiImage(name, mail, parts);
+        call.enqueue(new Callback<Response>() {
+            @Override
+            public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
+                Toast.makeText(EditProfile.this,""+response.body().getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<Response> call, Throwable t) {
+
+            }
+        });
+    }
+    private MultipartBody.Part prepareFilePart(String partName, Uri fileUri){
+        File file = FileUtils.getFile(this, fileUri);
+        @SuppressLint({"NewApi", "LocalSuppress"}) RequestBody requestFile =
+                RequestBody.create(
+                        MediaType.parse(Objects.requireNonNull(getContentResolver().getType(fileUri))),
+                        file
+                );
+
+        // MultipartBody.Part is used to send also the actual file name
+        return MultipartBody.Part.createFormData(partName, file.getName(), requestFile);
     }
     //TEST TUTOR MEDIUM
     private File createTempFile(Bitmap bitmap) {
@@ -137,38 +167,26 @@ public class EditProfile extends AppCompatActivity {
                     mat.postRotate(angle);
                     bitmap = BitmapFactory.decodeStream(new FileInputStream(file), null, null);
                     correctBitmap = Bitmap.createBitmap(bitmap, 0,0, bitmap.getWidth(), bitmap.getHeight(), mat, true);
-                    pickpic.setImageBitmap(correctBitmap);
-                    imageName.setText(filename);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        if (requestCode == IMG_CAMERA1 && resultCode == RESULT_OK){
-            if(currentPhotoPath1 != null){
-                File file = new File(currentPhotoPath1);
-                try {
-                    ExifInterface exifInterface = new ExifInterface(file.getPath());
-                    int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                    int angle = 0;
-                    if (orientation == ExifInterface.ORIENTATION_ROTATE_90){
-                        angle = 90;
-                    }else if (orientation == ExifInterface.ORIENTATION_ROTATE_180){
-                        angle = 180;
-                    }else if (orientation == ExifInterface.ORIENTATION_ROTATE_270){
-                        angle = 270;
-                    }
-                    final Matrix mat = new Matrix();
-                    mat.postRotate(angle);
-                    bitmap1 = BitmapFactory.decodeStream(new FileInputStream(file), null, null);
-                    correctBitmap1 = Bitmap.createBitmap(bitmap1,0,0, bitmap1.getWidth(), bitmap1.getHeight(), mat, true);
-                    show.setImageBitmap(correctBitmap1);
+
+                    String imagepath = MediaStore.Images.Media.insertImage(this.getContentResolver(), correctBitmap, "Title", null);
+                    arrImages.add(Uri.parse(imagepath));
+                    Log.e("camera", "onActivityResult: " + arrImages.size());
+                    initRecyclerView();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
 
+    }
+    private void initRecyclerView(){
+        int spacing = 7; // 50px
+        rv_Images.addItemDecoration(new ItemOffsetDecoration(spacing));
+
+        rv_Images.setLayoutManager(new GridLayoutManager(this, 2));
+        ImageAdapter adapter = new ImageAdapter(arrImages);
+        rv_Images.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
     private void startCamera(View view){
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -187,34 +205,6 @@ public class EditProfile extends AppCompatActivity {
 
             }
         }
-    }
-    private void startCamera1(View view){
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if(cameraIntent.resolveActivity(getPackageManager()) != null){
-            File imageFile = null;
-            try {
-                imageFile = getImageFile1();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            if (imageFile != null){
-                Uri imageuri = FileProvider.getUriForFile(EditProfile.this, "com.example.testedit.provider",imageFile);
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageuri);
-                startActivityForResult(cameraIntent, IMG_CAMERA1);
-
-            }
-        }
-    }
-    private File getImageFile1() throws IOException {
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageName = timestamp+"_";
-        filename = imageName;
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-
-        File imageFile = File.createTempFile(imageName,".jpg",storageDir);
-        currentPhotoPath1 = imageFile.getAbsolutePath();
-        return imageFile;
     }
     private File getImageFile() throws IOException {
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -237,15 +227,15 @@ public class EditProfile extends AppCompatActivity {
         RequestBody reqFile1 = RequestBody.create(MediaType.parse("image/jpeg"), file1);
         MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), reqFile);
         MultipartBody.Part body1 = MultipartBody.Part.createFormData("imagee", file.getName(), reqFile1);
-        Call<Response> call = service.postEditProfile(body,body1, map);
-        call.enqueue(new Callback<Response>() {
+        Call<Responsee> call = service.postEditProfile(body,body1, map);
+        call.enqueue(new Callback<Responsee>() {
             @Override
-            public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
+            public void onResponse(Call<Responsee> call, retrofit2.Response<Responsee> response) {
                 Log.d("upload success", response.body().getMessage());
             }
 
             @Override
-            public void onFailure(Call<Response> call, Throwable t) {
+            public void onFailure(Call<Responsee> call, Throwable t) {
 
             }
         });

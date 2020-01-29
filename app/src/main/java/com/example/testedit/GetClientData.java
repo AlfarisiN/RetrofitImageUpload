@@ -21,11 +21,13 @@ public interface GetClientData {
 
     @Multipart
     @POST("update")
-    Call<Response> postEditProfile(@Part MultipartBody.Part image,
-                                   @Part MultipartBody.Part imagee,
-                                   @PartMap Map<String, RequestBody> body);
+    Call<Responsee> postEditProfile(@Part MultipartBody.Part image,
+                                    @Part MultipartBody.Part imagee,
+                                    @PartMap Map<String, RequestBody> body);
 
     @Multipart
     @POST("update")
-    Call<Response> postMultiImage(@Part List<MultipartBody.Part> image);
+    Call<Response> postMultiImage(@Part ("name") RequestBody name,
+                                   @Part ("mail") RequestBody mail,
+                                   @Part List<MultipartBody.Part> image);
 }
