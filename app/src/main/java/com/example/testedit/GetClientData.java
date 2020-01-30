@@ -29,5 +29,6 @@ public interface GetClientData {
     @POST("update")
     Call<Response> postMultiImage(@Part ("name") RequestBody name,
                                    @Part ("mail") RequestBody mail,
+                                   @Part ("id_image") RequestBody id_image,
                                    @Part List<MultipartBody.Part> image);
 }

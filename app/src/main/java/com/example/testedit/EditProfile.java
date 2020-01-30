@@ -109,7 +109,8 @@ public class EditProfile extends AppCompatActivity {
 
         RequestBody name = createPartFromString("jhon");
         RequestBody mail = createPartFromString("testmail@mail.com");
-        Call<Response> call = service.postMultiImage(name, mail, parts);
+        RequestBody id_image = createPartFromString("5");
+        Call<Response> call = service.postMultiImage(name, mail,id_image, parts);
         call.enqueue(new Callback<Response>() {
             @Override
             public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
